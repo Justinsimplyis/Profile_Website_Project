@@ -1274,7 +1274,61 @@ a { text-decoration: none; color: inherit; }
 
 .view-lightbox-prev { left: 2rem; }
 .view-lightbox-next { right: 2rem; }
+/* ── Custom File Upload ────────────────────────────────── */
+.file-upload-wrapper {
+    position: relative;
+}
 
+.file-upload-wrapper input[type="file"] {
+    position: absolute;
+    width: 0.1rem;
+    height: 0.1rem;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.file-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    border: 0.2rem dashed rgba(255,255,255,0.2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.file-upload-label:hover {
+    border-color: var(--yellow);
+    background: rgba(234,179,8,0.03);
+}
+
+.file-upload-label i {
+    font-size: 2rem;
+    color: var(--yellow);
+}
+
+.file-upload-text {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+}
+
+.file-upload-hint {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.35);
+}
+
+.file-upload-name {
+    display: none;
+    margin-top: 0.5rem;
+    font-size: 1.2rem;
+    color: var(--yellow);
+    text-align: center;
+}
 
 /* RESPONSIVE */
 @media (max-width: 991px) {
@@ -1404,5 +1458,100 @@ a { text-decoration: none; color: inherit; }
         height: 4rem;
         top: 1rem;
         right: 1rem;
+    }
+} /* ← media query CLOSES here */
+
+/* ── Form Row (name + email side by side) ──────────────── */
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+/* ── Primary Button in Dark Sections ───────────────────── */
+.dark-section .btn-primary {
+    background-color: var(--yellow);
+    color: var(--black);
+    border-color: var(--yellow);
+}
+
+.dark-section .btn-primary:hover {
+    background-color: var(--black);
+    color: var(--yellow);
+    border-color: var(--yellow);
+}
+
+/* ── Form Feedback Messages ────────────────────────────── */
+.form-message {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1.2rem 1.5rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1.5;
+    animation: fadeSlideUp 0.35s ease-out;
+}
+
+.form-message--success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 0.2rem solid rgba(16, 185, 129, 0.35);
+    color: #6ee7b7;
+}
+
+.form-message--error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 0.2rem solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+}
+
+.form-message i {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+
+.form-message--success i {
+    color: #10b981;
+}
+
+.form-message--error i {
+    color: #ef4444;
+}
+
+/* ── Form Field Validation States ──────────────────────── */
+.suggestion-form .form-box:invalid:not(:placeholder-shown) {
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.suggestion-form .form-box:valid:not(:placeholder-shown):not(select) {
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* ── Submit Button Loading State ───────────────────────── */
+.btn-full.is-loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-full.is-loading i {
+    animation: spin 0.8s linear infinite;
+}
+
+/* ── Keyframes ─────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }

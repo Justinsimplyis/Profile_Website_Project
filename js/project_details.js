@@ -1,5 +1,3 @@
-/* PROJECT DETAIL PAGE JS */
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Elements ----
@@ -8,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const demoModal = document.getElementById('demo-modal');
     const modalClose = document.getElementById('modal-close');
     const suggestionForm = document.getElementById('suggestion-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const formMsgBox = document.getElementById('form-message-ajax');
     const revealElements = document.querySelectorAll('.reveal');
 
     // ---- Set year ----
@@ -49,29 +49,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     revealElements.forEach(el => revealObserver.observe(el));
 
-    // ---- Suggestion Form ----
-    if (suggestionForm) {
+    // ---- Suggestion Form (Real AJAX) ----
+    if (suggestionForm && submitBtn && formMsgBox) {
         suggestionForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const btn = suggestionForm.querySelector('button[type="submit"]');
-            const originalHTML = btn.innerHTML;
+            // Basic client-side check
+            if (!suggestionForm.checkValidity()) {
+                suggestionForm.reportValidity();
+                return;
+            }
 
-            // Success state
-            btn.innerHTML = 'Feedback Submitted! <i class="fas fa-check"></i>';
-            btn.style.backgroundColor = '#22c55e';
-            btn.style.borderColor = '#22c55e';
-            btn.disabled = true;
-            suggestionForm.reset();
+            // Loading state
+            submitBtn.classList.add('is-loading');
+            submitBtn.disabled = true;
+            formMsgBox.style.display = 'none';
 
-            // Reset after 3 seconds
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.style.backgroundColor = '';
-                btn.style.borderColor = '';
-                btn.disabled = false;
-            }, 3000);
+            const formData = new FormData(suggestionForm);
+
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData,
+            })
+            .then((res) => {
+                if (!res.ok) throw new Error('Server error');
+                return res.json();
+            })
+            .then((data) => {
+                showFormMessage(data.success, data.message);
+                if (data.success) suggestionForm.reset();
+            })
+            .catch(() => {
+                showFormMessage(false, 'Something went wrong. Please try again later.');
+            })
+            .finally(() => {
+                submitBtn.classList.remove('is-loading');
+                submitBtn.disabled = false;
+            });
         });
+
+        function showFormMessage(isSuccess, text) {
+            formMsgBox.style.display = 'flex';
+            formMsgBox.className = 'form-message form-message--' + (isSuccess ? 'success' : 'error');
+            formMsgBox.innerHTML =
+                '<i class="fas fa-' + (isSuccess ? 'check-circle' : 'exclamation-circle') + '"></i>' +
+                '<span>' + text + '</span>';
+
+            formMsgBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            if (isSuccess) {
+                setTimeout(() => {
+                    formMsgBox.style.display = 'none';
+                }, 6000);
+            }
+        }
     }
 
     // ---- Screenshot / View Lightbox ----
@@ -182,5 +216,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+        // ── File Upload Name Display ─────────────────────────
+    const fileInput = document.getElementById('screenshot-input');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    
+    if (fileInput && fileNameDisplay) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileNameDisplay.textContent = this.files[0].name;
+                fileNameDisplay.style.display = 'block';
+            } else {
+                fileNameDisplay.style.display = 'none';
+            }
+        });
+    }
 
 });

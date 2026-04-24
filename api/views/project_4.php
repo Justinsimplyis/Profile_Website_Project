@@ -1,6 +1,124 @@
 <?php
-// Detailed view for the Personal Portfolio Project
+require_once __DIR__ . '/../../database/db_connections.php';
+
+ $formMessage = [
+    'type'    => '',
+    'text'    => '',
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'submit_suggestion') {
+
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+              && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+    $name     = trim(htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8'));
+    $email    = trim(filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL));
+    $category = trim($_POST['category'] ?? '');
+        $message  = trim(htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8'));
+    
+    $project_slug  = trim(htmlspecialchars($_POST['project_slug'] ?? '', ENT_QUOTES, 'UTF-8'));
+    $project_title = trim(htmlspecialchars($_POST['project_title'] ?? '', ENT_QUOTES, 'UTF-8'));
+
+    // --- NEW: Handle File Upload ---
+    $imagePath = null;
+    if (isset($_FILES['screenshot']) && $_FILES['screenshot']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['screenshot'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        if ($file['size'] > $maxSize) {
+            $errors[] = 'Screenshot must be under 5MB.';
+        } elseif (!in_array($file['type'], $allowedTypes)) {
+            $errors[] = 'Invalid file type. Only PNG, JPG, GIF, and WebP are allowed.';
+        } else {
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $newName = uniqid('sugg_') . '.' . $ext;
+            
+            // Server path (for saving the file)
+            $uploadDir = __DIR__ . '/../../assets/uploads/suggestions/';
+            
+            if (!is_dir($uploadDir)) { 
+                mkdir($uploadDir, 0755, true); 
+            }
+            
+            $destination = $uploadDir . $newName;
+            
+            if (move_uploaded_file($file['tmp_name'], $destination)) {
+                // Web path (for displaying in the browser)
+                $imagePath = '/assets/uploads/suggestions/' . $newName;
+            } else {
+                $errors[] = 'Failed to save screenshot.';
+            }
+        }
+    }
+
+    $errors = [];
+
+    if (strlen($name) < 2 || strlen($name) > 100) {
+        $errors[] = 'Name must be between 2 and 100 characters.';
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Please enter a valid email address.';
+    }
+
+    $allowedCategories = ['ui', 'feature', 'bug', 'general'];
+    if (!in_array($category, $allowedCategories, true)) {
+        $errors[] = 'Please select a valid feedback category.';
+    }
+
+    if (strlen($message) < 10 || strlen($message) > 5000) {
+        $errors[] = 'Your message must be between 10 and 5 000 characters.';
+    }
+
+    if (!empty($errors)) {
+        $response = [
+            'success' => false,
+            'message' => implode(' ', $errors),
+        ];
+    } else {
+        try {
+            $db = getDB();
+                        $stmt = $db->prepare("
+                INSERT INTO suggestions (name, email, category, message, project_slug, project_title, image)
+                VALUES (:name, :email, :category, :message, :project_slug, :project_title, :image)
+            ");
+
+            $stmt->execute([
+                ':name'          => $name,
+                ':email'         => $email,
+                ':category'      => $category,
+                ':message'       => $message,
+                ':project_slug'  => $project_slug,
+                ':project_title' => $project_title,
+                ':image'         => $imagePath,
+            ]);
+
+            $response = [
+                'success' => true,
+                'message' => 'Thank you, ' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '! Your feedback has been submitted successfully.',
+            ];
+        } catch (PDOException $e) {
+            error_log("Suggestion Insert Error: " . $e->getMessage());
+            $response = [
+                'success' => false,
+                'message' => 'Something went wrong saving your feedback. Please try again later.',
+            ];
+        }
+    }
+
+    if ($isAjax) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($response);
+        exit;
+    }
+
+    $formMessage['type'] = $response['success'] ? 'success' : 'error';
+    $formMessage['text'] = $response['message'];
+}
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,10 +217,11 @@
             <div class="views-grid reveal">
                 <!-- Full Width: Home -->
                 <div class="view-card full-width">
-                    <div class="view-placeholder" data-view data-caption="Home & Hero Section">
-                        <i class="fas fa-home"></i>
-                        <span>Home & Hero Section</span>
-                    </div>
+                    <img src="/assets/screenshots/p_4/Home_page.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Projects Grid"/>
+                    <img src="/assets/screenshots/p_4/home_and_nav.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Projects Grid"/>
+
                     <div class="view-caption">
                         <span class="view-label">Home Section</span>
                         <span class="view-desc">Dynamic hero with role tags, stats, and call-to-action buttons</span>
@@ -111,10 +230,8 @@
 
                 <!-- Half Width: About -->
                 <div class="view-card">
-                    <div class="view-placeholder" data-view data-caption="Biography Section">
-                        <i class="fas fa-user"></i>
-                        <span>Biography View</span>
-                    </div>
+                    <img src="/assets/screenshots/p_4/about_me_page.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Projects Grid"/>
                     <div class="view-caption">
                         <span class="view-label">Biography</span>
                         <span class="view-desc">Bio text and structured contact info grid</span>
@@ -123,9 +240,8 @@
 
                 <!-- Half Width: Skills -->
                 <div class="view-card">
-                    <div class="view-placeholder" data-view data-caption="Skills & Animations">
-                        <i class="fas fa-cogs"></i>
-                        <span>Skills View</span>
+                    <img src="/assets/screenshots/p_4/Skills_page.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Projects Grid"/>
                     </div>
                     <div class="view-caption">
                         <span class="view-label">Skills Section</span>
@@ -135,10 +251,8 @@
 
                 <!-- Half Width: Education/Experience -->
                 <div class="view-card">
-                    <div class="view-placeholder" data-view data-caption="Education & Experience Timeline">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Timeline View</span>
-                    </div>
+                    <img src="/assets/screenshots/p_4/edu_&_exp_page.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Projects Grid"/>
                     <div class="view-caption">
                         <span class="view-label">Education & Experience</span>
                         <span class="view-desc">Dual-column vertical timeline layout</span>
@@ -147,10 +261,8 @@
 
                 <!-- Half Width: Projects Grid -->
                 <div class="view-card">
-                    <div class="view-placeholder" data-view data-caption="Projects Grid">
-                        <i class="fas fa-th-large"></i>
-                        <span>Projects View</span>
-                    </div>
+                    <img src="/assets/screenshots/p_4/projects_page.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Projects Grid"/>
                     <div class="view-caption">
                         <span class="view-label">Projects Grid</span>
                         <span class="view-desc">Categorized current work and academic project cards</span>
@@ -466,28 +578,77 @@
             </div>
         </section>
 
-        <!-- ========== SUGGESTION FORM ========== -->
+                <!-- ========== SUGGESTION FORM ========== -->
         <section class="project-section dark-section" id="suggestions">
             <h2 class="section-heading heading-light reveal"><span>Suggestions & Feedback</span></h2>
             <div class="suggestion-wrapper reveal">
                 <p class="suggestion-intro">Have feedback on this project or suggestions for improvement? I'd love to hear from you.</p>
-                <form class="suggestion-form" id="suggestion-form">
-                    <div class="form-row">
-                        <input type="text" name="name" placeholder="Your Name" class="form-box" required>
-                        <input type="email" name="email" placeholder="Your Email" class="form-box" required>
+
+                <?php if (!empty($formMessage['text'])): ?>
+                    <div class="form-message form-message--<?= $formMessage['type'] ?>">
+                        <i class="fas fa-<?= $formMessage['type'] === 'success' ? 'check-circle' : 'exclamation-circle' ?>"></i>
+                        <span><?= $formMessage['text'] ?></span>
                     </div>
-                    <select name="category" class="form-box" required>
+                <?php endif; ?>
+
+                <form class="suggestion-form" id="suggestion-form" novalidate enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="submit_suggestion">
+
+                     <input type="hidden" name="project_slug" value="project_4">
+                    <input type="hidden" name="project_title" value="Personal Portfolio Website">
+
+                                        <div class="file-upload-wrapper">
+                        <input type="file" name="screenshot" id="screenshot-input" accept="image/png, image/jpeg, image/gif, image/webp">
+                        <label for="screenshot-input" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span class="file-upload-text">Attach a screenshot (optional)</span>
+                            <span class="file-upload-hint">PNG, JPG, GIF or WebP — Max 5MB</span>
+                        </label>
+                        <span class="file-upload-name" id="file-name-display"></span>
+                    </div>
+                    <div class="form-row">
+                        <input
+                            type="text"
+                            name="name"
+                            placeholder="Your Name"
+                            class="form-box"
+                            required
+                            minlength="2"
+                            maxlength="100"
+                            aria-label="Your Name"
+                        >
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Your Email"
+                            class="form-box"
+                            required
+                            aria-label="Your Email"
+                        >
+                    </div>
+                    <select name="category" class="form-box" required aria-label="Feedback Category">
                         <option value="" disabled selected>Select Feedback Category</option>
                         <option value="ui">UI / Design Feedback</option>
                         <option value="feature">Feature Suggestion</option>
                         <option value="bug">Bug Report</option>
                         <option value="general">General Comment</option>
                     </select>
-                    <textarea name="message" class="form-box" rows="5" placeholder="Your feedback or suggestion..." required></textarea>
-                    <button type="submit" class="btn btn-primary btn-full">
+                    <textarea
+                        name="message"
+                        class="form-box"
+                        rows="5"
+                        placeholder="Your feedback or suggestion..."
+                        required
+                        minlength="10"
+                        maxlength="5000"
+                        aria-label="Your feedback"
+                    ></textarea>
+                    <button type="submit" class="btn btn-primary btn-full" id="submit-btn">
                         Submit Feedback <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
+
+                <div class="form-message" id="form-message-ajax" style="display:none;" role="alert"></div>
             </div>
         </section>
 

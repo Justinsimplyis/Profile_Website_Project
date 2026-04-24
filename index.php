@@ -34,6 +34,7 @@
             <a href="#services"><i class="fas fa-briefcase"></i> Services</a>
             <a href="#portfolio"><i class="fas fa-folder-open"></i> Projects</a>
             <a href="#contact"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="/api/suggestions/suggestions.php"><i class="fas fa-suggestion">Suggestions</i></a>
         </nav>
 
         <div class="follow">
