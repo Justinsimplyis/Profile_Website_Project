@@ -5,6 +5,7 @@
 -   *PROFILE_WEBSITE_PROFILE*
     *api* /
     *handler* /
+    - content_handler.php
     - suggestions_handler.php
     *school* / _[all my old school projects will be displayed here]_
     *suggestions* / _[suggestions will be displayes here]_
@@ -13,7 +14,7 @@
     - project_1.php
     - project_2.php
     - project_3.php
-    - projects_3.php
+    - project_4.php
     *assets* /
     *css* / _[the entire projects cascading stylings]_
     - project_details_css
@@ -32,6 +33,7 @@
     *js* / _[the entire projects javascript]_
     - project_details.js
     - script.js
-    - index.php _[main page will all the neccesary content]_
+    _[main page will all the neccesary content]_
+    - index.php 
 
     

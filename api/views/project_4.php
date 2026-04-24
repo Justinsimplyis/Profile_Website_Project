@@ -14,12 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $name     = trim(htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8'));
     $email    = trim(filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL));
     $category = trim($_POST['category'] ?? '');
-        $message  = trim(htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8'));
+    $message  = trim(htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8'));
     
     $project_slug  = trim(htmlspecialchars($_POST['project_slug'] ?? '', ENT_QUOTES, 'UTF-8'));
     $project_title = trim(htmlspecialchars($_POST['project_title'] ?? '', ENT_QUOTES, 'UTF-8'));
 
-    // --- NEW: Handle File Upload ---
+    $errors = [];
+
+    // --- Handle File Upload ---
     $imagePath = null;
     if (isset($_FILES['screenshot']) && $_FILES['screenshot']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['screenshot'];
@@ -29,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         if ($file['size'] > $maxSize) {
             $errors[] = 'Screenshot must be under 5MB.';
         } elseif (!in_array($file['type'], $allowedTypes)) {
-            $errors[] = 'Invalid file type. Only PNG, JPG, GIF, and WebP are allowed.';
+            
         } else {
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
             $newName = uniqid('sugg_') . '.' . $ext;
@@ -124,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Portfolio | Justin Plaatjies Portfolio</title>
+    <title>Personal Portfolio | Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
@@ -242,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <div class="view-card">
                     <img src="/assets/screenshots/p_4/Skills_page.png"
                     alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Projects Grid"/>
-                    </div>
+                    
                     <div class="view-caption">
                         <span class="view-label">Skills Section</span>
                         <span class="view-desc">Scroll-triggered animated skill bars and tool tags</span>
@@ -279,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <!-- Tech Stack -->
                 <div class="tech-column">
                     <h3 class="tech-subtitle"><i class="fas fa-cubes"></i> Tech Stack</h3>
-                    <div class="tech-list">
+                                        <div class="tech-list">
                         <div class="tech-item">
                             <div class="tech-item-icon" style="background: #f7df1e20; color: #b8860b;"><i class="fab fa-html5"></i></div>
                             <div>
@@ -298,7 +300,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <div class="tech-item-icon" style="background: #f0db4f20; color: #f0db4f;"><i class="fab fa-js-square"></i></div>
                             <div>
                                 <span class="tech-name">Vanilla JavaScript</span>
-                                <span class="tech-detail">Intersection Observer, DOM manipulation, state</span>
+                                <span class="tech-detail">Intersection Observer, DOM manipulation, AJAX Fetch</span>
+                            </div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-item-icon" style="background: #777bb320; color: #777bb3;"><i class="fab fa-php"></i></div>
+                            <div>
+                                <span class="tech-name">PHP</span>
+                                <span class="tech-detail">API handlers, session control, file upload processing</span>
+                            </div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-item-icon" style="background: #00758f20; color: #00758f;"><i class="fas fa-database"></i></div>
+                            <div>
+                                <span class="tech-name">MySQL</span>
+                                <span class="tech-detail">Relational schema, prepared statements, dynamic filtering</span>
                             </div>
                         </div>
                         <div class="tech-item">
@@ -321,31 +337,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <!-- Architecture -->
                 <div class="tech-column">
                     <h3 class="tech-subtitle"><i class="fas fa-sitemap"></i> Architecture</h3>
-                    <div class="architecture-diagram">
+                                        <div class="architecture-diagram">
                         <div class="arch-layer frontend">
                             <span class="arch-label">Client-Side (Browser)</span>
                             <div class="arch-nodes">
-                                <span class="arch-node">HTML Structure</span>
-                                <span class="arch-node">CSS Styling</span>
-                                <span class="arch-node">JS Logic</span>
+                                <span class="arch-node">HTML / CSS</span>
+                                <span class="arch-node">Vanilla JS</span>
+                                <span class="arch-node">AJAX Fetch</span>
                             </div>
                         </div>
-                        <div class="arch-arrow"><i class="fas fa-exchange-alt"></i> DOM Events & Rendering</div>
+                        <div class="arch-arrow"><i class="fas fa-exchange-alt"></i> HTTP Requests / Responses</div>
                         <div class="arch-layer backend">
-                            <span class="arch-label">Core Features</span>
+                            <span class="arch-label">API & Server Logic</span>
                             <div class="arch-nodes">
-                                <span class="arch-node">Scroll Spy</span>
-                                <span class="arch-node">Intersection API</span>
-                                <span class="arch-node">State Toggle</span>
+                                <span class="arch-node">PHP Handlers</span>
+                                <span class="arch-node">Mail Routing</span>
+                                <span class="arch-node">File Uploads</span>
                             </div>
                         </div>
-                        <div class="arch-arrow"><i class="fas fa-exchange-alt"></i> URL Routing</div>
+                        <div class="arch-arrow"><i class="fas fa-exchange-alt"></i> SQL Queries / I/O</div>
                         <div class="arch-layer database">
-                            <span class="arch-label">Sub-Pages</span>
+                            <span class="arch-label">Data & Storage</span>
                             <div class="arch-nodes">
-                                <span class="arch-node">PHP Detail Views</span>
-                                <span class="arch-node">Shared CSS</span>
-                                <span class="arch-node">Lightbox Modals</span>
+                                <span class="arch-node">MySQL Database</span>
+                                <span class="arch-node">Image Directory</span>
+                                <span class="arch-node">Project Views</span>
                             </div>
                         </div>
                     </div>
@@ -353,7 +369,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </div>
 
             <!-- Key Features -->
-            <div class="features-grid reveal">
+                        <div class="features-grid reveal">
                 <h3 class="tech-subtitle center"><i class="fas fa-star"></i> Key Features Implemented</h3>
                 <div class="feature-card">
                     <div class="feature-number">01</div>
@@ -367,7 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 </div>
                 <div class="feature-card">
                     <div class="feature-number">03</div>
-                    <h4>Project Case Studies</h4>
+                    <h4>Deep-Dive Case Studies</h4>
                     <p>Instead of a simple image grid, clicking a project routes the user to a fully detailed PHP case study page featuring Gantt charts, schema breakdowns, and image lightboxes.</p>
                 </div>
                 <div class="feature-card">
@@ -384,6 +400,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <div class="feature-number">06</div>
                     <h4>Custom Lightbox Modals</h4>
                     <p>Built custom image and video lightboxes from scratch with keyboard navigation (arrow keys, escape), dynamic indexing, and smooth CSS transitions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">07</div>
+                    <h4>Context-Aware Feedback System</h4>
+                    <p>Built a custom suggestion engine where feedback is tied directly to the specific project being viewed. Users can upload screenshots of bugs, securely stored via PHP and linked back to the project.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">08</div>
+                    <h4>Admin Review Dashboard</h4>
+                    <p>Created a dedicated suggestions page that aggregates all feedback across all projects. It features dynamic filtering by category, full-text search, and direct links back to relevant case studies.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">09</div>
+                    <h4>Direct Gmail Routing</h4>
+                    <p>Implemented a PHP mail handler for the contact form that formats HTML emails and routes them directly to my Gmail, complete with honeypot spam protection and dual validation.</p>
                 </div>
             </div>
         </section>
@@ -523,7 +554,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </div>
         </section>
 
-        <!-- ========== CHALLENGES & LEARNINGS ========== -->
+              <!-- ========== CHALLENGES & LEARNINGS ========== -->
         <section class="project-section dark-section" id="learnings">
             <h2 class="section-heading heading-light reveal"><span>Challenges & Learnings</span></h2>
             <div class="learnings-grid reveal">
@@ -550,35 +581,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </div>
         </section>
 
-        <!-- ========== MODULE ALIGNMENT ========== -->
-        <section class="project-section" id="modules">
-            <h2 class="section-heading reveal"><span>Skills Applied</span></h2>
-            <div class="alignment-content reveal">
-                <p class="alignment-text">
-                    While this is a personal project, it serves as a practical culmination of multiple modules studied during my Diploma in IT. It applies theoretical concepts to a real-world, production-level artifact.
-                </p>
-                <div class="alignment-tags">
-                    <div class="alignment-tag-item">
-                        <span class="tag-code">WEDE6021</span>
-                        <span>Web Development (Intermediate) — Advanced HTML/CSS structuring</span>
+        <!-- ========== THOUGHT PROCESS / DIARY ========== -->
+        <section class="project-section" id="thought-process">
+            <h2 class="section-heading reveal"><span>Thought Process</span></h2>
+            <div class="thought-process-wrapper reveal">
+                <div class="diary-card">
+                    <div class="diary-date">Late 2024 — The "Enough is Enough" Moment</div>
+                    <p>I was bored. Not with coding, but with the traditional way we're taught to present our work. Every time I had to submit a portfolio, it was the same generic PDF or a Wix site template. It felt cheap. It didn't reflect my actual skills.</p>
+                    <p>I realized that if I'm going to call myself a developer, my CV shouldn't be a document — it should be a web application. I wanted to build something that invited the user into my mind. When someone clicks on a project, they shouldn't just see a screenshot; they should see the Gantt chart, the database schema, the bugs I fought, and the late-night thought processes that went into it. That's how you prove you can build something.</p>
+                </div>
+                <div class="diary-card">
+                    <div class="diary-date">Finding the Right Vibe</div>
+                    <p>I spent days just looking at different portfolios. I didn't want the standard blue/white clean corporate look. I came across a portfolio that heavily utilized bold typography and thick borders (<a href="https://brittanychiang.com/" target="_blank" rel="noopener" class="ref-link">Reference: Brittany Chiang's Portfolio</a>). I fell in love with the brutalist-meets-minimalist aesthetic. I decided to adapt that using a black and deep orange theme to make it uniquely mine.</p>
+                </div>
+                <div class="diary-card full-width">
+                    <div class="diary-date">The "Zero Framework" Rule</div>
+                    <p>Anyone can drop a Bootstrap container and call it a day. I specifically restricted myself from using any CSS frameworks or JS libraries (like AOS or jQuery). Why? Because if you can build a responsive sidebar, complex grid layouts, and custom modals from absolute scratch, you understand the language on a fundamentally deeper level. It was painful—especially calculating the exact padding offsets for the fixed sidebar—but the result is a site that weighs practically nothing and loads instantly.</p>
+                </div>
+                
+                <!-- Screenshot Placeholder: Early Wireframes -->
+                <div class="view-card">
+                    <div class="view-placeholder" data-view data-caption="Early Wireframes & Moodboard">
+                        <i class="fas fa-pencil-ruler"></i>
+                        <span>Early Wireframes / Moodboard</span>
                     </div>
-                    <div class="alignment-tag-item">
-                        <span class="tag-code">HUCM6221</span>
-                        <span>Human Computer Interaction — UI/UX design principles applied</span>
-                    </div>
-                    <div class="alignment-tag-item">
-                        <span class="tag-code">PROG6011</span>
-                        <span>Programming 2A — JavaScript DOM manipulation and logic</span>
-                    </div>
-                    <div class="alignment-tag-item">
-                        <span class="tag-code">WILA6321</span>
-                        <span>Work Integrated Learning — Professional presentation of work</span>
+                    <div class="view-caption">
+                        <span class="view-label">Planning Phase</span>
+                        <span class="view-desc">Initial sketches mapping out the brutalist aesthetic and user flow</span>
                     </div>
                 </div>
             </div>
         </section>
 
-                <!-- ========== SUGGESTION FORM ========== -->
+        <!-- ========== BEYOND STATIC PAGES ========== -->
+        <section class="project-section dark-section" id="dynamic-features">
+            <h2 class="section-heading heading-light reveal"><span>System Proof & Backend</span></h2>
+            <p class="alignment-text" style="color: rgba(255,255,255,0.6); margin-bottom: 3rem;">What started as a purely front-end project evolved into a full-stack ecosystem. Below is proof of the backend architecture, API handlers, and database structure powering the interactive features.</p>
+            
+            <div class="views-grid reveal">
+                <!-- Screenshot Placeholder: API Folder Structure -->
+                <div class="view-card">
+                    <img src="/assets/screenshots/p_4/layout.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="API Handler Directory Structure"/>
+                        <span>API & Handler Architecture</span>                    
+                    <div class="view-caption">
+                        <span class="view-label">Backend Structure</span>
+                        <span class="view-desc">Directory layout for API handlers, database connections, and file uploads</span>
+                    </div>
+                </div>
+
+                <!-- Screenshot Placeholder: Database Tables -->
+                <div class="view-card">
+                    <img src="/assets/screenshots/p_4/db.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="MySQL Suggestions Schema"/>
+                        <span>Database Schema</span>                    
+                    <div class="view-caption">
+                        <span class="view-label">MySQL Relational Schema</span>
+                        <span class="view-desc">Table structure linking suggestions to specific projects and image uploads</span>
+                    </div>
+                </div>
+
+                <!-- Screenshot Placeholder: Suggestion Page -->
+                <div class="view-card">
+                    <img src="/assets/screenshots/p_4/suggestions_page.png"
+                    alt="Projects Grid Screenshot" class="view-image" data-view  data-caption="Live Suggestions Page View"/>                
+                        <span>Suggestions Page View</span>                    
+                    <div class="view-caption">
+                        <span class="view-label">Live Feedback Dashboard</span>
+                        <span class="view-desc">Real-time aggregation of user feedback with filtering and image previews</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SUGGESTION FORM ========== -->
         <section class="project-section dark-section" id="suggestions">
             <h2 class="section-heading heading-light reveal"><span>Suggestions & Feedback</span></h2>
             <div class="suggestion-wrapper reveal">
@@ -593,11 +669,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                 <form class="suggestion-form" id="suggestion-form" novalidate enctype="multipart/form-data">
                     <input type="hidden" name="action" value="submit_suggestion">
-
-                     <input type="hidden" name="project_slug" value="project_4">
+                    <input type="hidden" name="project_slug" value="project_4">
                     <input type="hidden" name="project_title" value="Personal Portfolio Website">
 
-                                        <div class="file-upload-wrapper">
+                    <div class="file-upload-wrapper">
                         <input type="file" name="screenshot" id="screenshot-input" accept="image/png, image/jpeg, image/gif, image/webp">
                         <label for="screenshot-input" class="file-upload-label">
                             <i class="fas fa-cloud-upload-alt"></i>
@@ -606,25 +681,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         </label>
                         <span class="file-upload-name" id="file-name-display"></span>
                     </div>
+
                     <div class="form-row">
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Your Name"
-                            class="form-box"
-                            required
-                            minlength="2"
-                            maxlength="100"
-                            aria-label="Your Name"
-                        >
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Your Email"
-                            class="form-box"
-                            required
-                            aria-label="Your Email"
-                        >
+                        <input type="text" name="name" placeholder="Your Name" class="form-box" required minlength="2" maxlength="100" aria-label="Your Name">
+                        <input type="email" name="email" placeholder="Your Email" class="form-box" required aria-label="Your Email">
                     </div>
                     <select name="category" class="form-box" required aria-label="Feedback Category">
                         <option value="" disabled selected>Select Feedback Category</option>
@@ -633,16 +693,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <option value="bug">Bug Report</option>
                         <option value="general">General Comment</option>
                     </select>
-                    <textarea
-                        name="message"
-                        class="form-box"
-                        rows="5"
-                        placeholder="Your feedback or suggestion..."
-                        required
-                        minlength="10"
-                        maxlength="5000"
-                        aria-label="Your feedback"
-                    ></textarea>
+                    <textarea name="message" class="form-box" rows="5" placeholder="Your feedback or suggestion..." required minlength="10" maxlength="5000" aria-label="Your feedback"></textarea>
                     <button type="submit" class="btn btn-primary btn-full" id="submit-btn">
                         Submit Feedback <i class="fas fa-paper-plane"></i>
                     </button>

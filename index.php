@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Justin Plaatjies | Software Developer Portfolio</title>
+    <title>Justin Plaatjies | Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +34,8 @@
             <a href="#services"><i class="fas fa-briefcase"></i> Services</a>
             <a href="#portfolio"><i class="fas fa-folder-open"></i> Projects</a>
             <a href="#contact"><i class="fas fa-envelope"></i> Contact</a>
-            <a href="/api/suggestions/suggestions.php"><i class="fas fa-suggestion">Suggestions</i></a>
+            <a href="/api/suggestions/suggestions.php">    <i class="fas fa-comments"></i> 
+            <span>Suggestions</span></a>
         </nav>
 
         <div class="follow">
@@ -107,7 +108,7 @@
             <h2 class="heading"><span>Biography</span></h2>
             <div class="biography reveal">
                 <p class="bio-text">
-                    I am a motivated Information Technology graduate from the IIE Varsity College in Nelson Mandela Bay Campus inGqeberha, 
+                    I am a motivated Information Technology graduate from the IIE Varsity College in Nelson Mandela Bay Campus in Gqeberha, 
                     Eastern Cape. My academic journey has equipped me with comprehensive knowledge across the 
                     full software development lifecycle — from requirements gathering and systems analysis 
                     through to coding, testing, and deployment. During my Work Integrated Learning. 
