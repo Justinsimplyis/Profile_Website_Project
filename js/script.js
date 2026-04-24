@@ -127,27 +127,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Initial call ----
     updateActiveNav();
+    
 
-    // ---- Contact form feedback (no backend) ----
-    const contactForm = document.querySelector('.contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+     // ---- Contact Form (Real AJAX) ----
+    if (contactForm && contactBtn && contactMsg) {
+        contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            const btn = contactForm.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Message Sent! <i class="fas fa-check"></i>';
-            btn.style.backgroundColor = '#22c55e';
-            btn.style.borderColor = '#22c55e';
-            btn.disabled = true;
-            contactForm.reset();
 
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.style.backgroundColor = '';
-                btn.style.borderColor = '';
-                btn.disabled = false;
-            }, 3000);
+            if (!contactForm.checkValidity()) {
+                contactForm.reportValidity();
+                return;
+            }
+
+            contactBtn.classList.add('is-loading');
+            contactBtn.disabled = true;
+            contactMsg.style.display = 'none';
+
+            const formData = new FormData(contactForm);
+
+            fetch('/api/handler/contact_handler.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData,
+            })
+            .then((res) => {
+                if (!res.ok) throw new Error('Server error');
+                return res.json();
+            })
+            .then((data) => {
+                showContactMessage(data.success, data.message);
+                if (data.success) contactForm.reset();
+            })
+            .catch(() => {
+                showContactMessage(false, 'Something went wrong. Please try again.');
+            })
+            .finally(() => {
+                contactBtn.classList.remove('is-loading');
+                contactBtn.disabled = false;
+            });
         });
+
+        function showContactMessage(isSuccess, text) {
+            contactMsg.style.display = 'flex';
+            contactMsg.className = 'form-message form-message--' + (isSuccess ? 'success' : 'error');
+            contactMsg.innerHTML =
+                '<i class="fas fa-' + (isSuccess ? 'check-circle' : 'exclamation-circle') + '"></i>' +
+                '<span>' + text + '</span>';
+
+            contactMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            if (isSuccess) {
+                setTimeout(() => { contactMsg.style.display = 'none'; }, 6000);
+            }
+        }
     }
 
 });

@@ -18,6 +18,7 @@
     *css* / _[the entire projects cascading stylings]_
     - project_details_css
     - style.css
+    - suggestions.css
     *project_logos* / _[all project logos will be stored here]_
     *screenshots* / _[all project screenshots will be stored here]_
     - p_1 /

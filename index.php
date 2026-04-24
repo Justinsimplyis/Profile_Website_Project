@@ -568,17 +568,25 @@
                         </div>
                     </div>
                 </div>
-                <form class="contact-form" action="" method="post">
+                <form class="contact-form" id="contact-form" novalidate>
+                    <input type="hidden" name="action" value="send_contact">
+                    
+                    <!-- Honeypot anti-spam (invisible to users) -->
+                    <input type="text" name="website" style="display:none;" tabindex="-1" autocomplete="off">
+
                     <div class="form-row">
                         <input type="text" name="name" placeholder="Your Name" class="form-box" required>
                         <input type="email" name="email" placeholder="Your Email" class="form-box" required>
                     </div>
                     <input type="text" name="subject" placeholder="Subject" class="form-box" required>
                     <textarea name="message" class="form-box" rows="6" placeholder="Your Message" required></textarea>
-                    <button type="submit" name="send" class="btn btn-primary btn-full">
+                    <button type="submit" class="btn btn-primary btn-full" id="contact-submit-btn">
                         Send Message <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
+                
+                <!-- AJAX Response Message -->
+                <div class="form-message" id="contact-message-ajax" style="display:none;" role="alert"></div>
             </div>
         </section>
 
